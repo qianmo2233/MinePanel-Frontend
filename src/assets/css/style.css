@@ -1,0 +1,60 @@
+/*
+ * 滚动栏样式
+ */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #c2c2c2;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-track-piece {
+    background: 0 0;
+}
+
+/*
+ * 页面主体内容样式
+ */
+html {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    overflow: hidden !important;
+    -ms-overflow-style: none !important;
+}
+
+.status-footer {
+    margin: -18px
+}
+
+.footer-btn {
+    margin: -5px
+}
+
+.sparkline {
+    width: 80px;
+}
+
+.slide-fade-enter-active {
+    transition: all .175s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+.slide-fade-leave-active {
+    transition: all .075s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+.slide-fade-enter, .slide-fade-leave-to {
+    transform: translateY(1.5vh);
+    opacity: 0;
+}
+
+.content-lg {
+    height: calc(100vh - 90px);
+}
+.content-sm {
+    height: calc(100vh - 56px);
+}

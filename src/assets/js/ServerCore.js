@@ -1,0 +1,1 @@
+const TypeListUrl = 'https://mirror.zerodream.net/?action=typelist'

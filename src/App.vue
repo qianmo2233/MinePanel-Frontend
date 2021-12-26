@@ -1,28 +1,28 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <v-app>
+    <app-bar/>
+    <v-main>
+      <div :class="$vuetify.breakpoint.mdAndUp ? 'overflow-auto content-lg' : 'overflow-auto content-sm'">
+        <v-container fluid>
+          <transition name="slide-fade" mode="out-in">
+            <router-view/>
+          </transition>
+        </v-container>
+      </div>
+    </v-main>
+    <Footer v-if="$vuetify.breakpoint.mdAndUp"/>
+  </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
 
+import AppBar from "@/components/layouts/AppBar";
+import Footer from "@/components/layouts/Footer";
 export default {
   name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  components: {Footer, AppBar},
+  data: () => ({
+    //
+  }),
+};
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
