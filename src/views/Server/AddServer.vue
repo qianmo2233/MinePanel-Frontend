@@ -11,7 +11,7 @@
     </v-row>
     <v-row>
       <v-col cols="12" lg="2" md="3" sm="12">
-        <v-tabs :vertical="$vuetify.breakpoint.mdAndUp" v-model="tab" show-arrows class="rounded-lg elevation-6">
+        <v-tabs :vertical="$vuetify.breakpoint.mdAndUp" v-model="tab" color="indigo" show-arrows class="rounded-lg elevation-6">
           <v-tab><v-icon left>mdi-minecraft</v-icon>Minecraft 服务器</v-tab>
           <v-tab><v-icon left>mdi-gamepad-variant</v-icon>自定义游戏服务器</v-tab>
         </v-tabs>

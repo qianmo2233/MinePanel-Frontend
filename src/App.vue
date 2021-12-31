@@ -10,17 +10,17 @@
         </v-container>
       </div>
     </v-main>
-    <Footer v-if="$vuetify.breakpoint.mdAndUp"/>
+    <bottom-nav v-if="$vuetify.breakpoint.smAndDown"/>
   </v-app>
 </template>
 
 <script>
 
 import AppBar from "@/components/layouts/AppBar";
-import Footer from "@/components/layouts/Footer";
+import BottomNav from "@/components/layouts/BottomNav";
 export default {
   name: 'App',
-  components: {Footer, AppBar},
+  components: {BottomNav, AppBar},
   data: () => ({
     //
   }),

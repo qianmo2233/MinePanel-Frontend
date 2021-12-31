@@ -84,7 +84,7 @@
                   <v-icon>mdi-memory</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title>8192 MB</v-list-item-title>
+                  <v-list-item-title>4096 MB</v-list-item-title>
                   <v-list-item-subtitle>内存</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>

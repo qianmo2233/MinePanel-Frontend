@@ -76,7 +76,7 @@
     </v-row>
     <v-tooltip top>
       <template v-slot:activator="{ on, attrs }">
-        <v-btn fab color="indigo" :class="$vuetify.breakpoint.smAndDown ? '' : 'mb-6'" bottom right fixed v-bind="attrs" v-on="on" to="/server/add">
+        <v-btn fab color="indigo" bottom right fixed v-bind="attrs" v-on="on" to="/server/add" :class="$vuetify.breakpoint.smAndDown ? 'mb-12' : ''">
           <v-icon>mdi-server-plus</v-icon>
         </v-btn>
       </template>
