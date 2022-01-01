@@ -33,8 +33,8 @@
                 <v-btn text><v-icon :left="$vuetify.breakpoint.smAndUp">mdi-code-tags</v-icon>{{ $vuetify.breakpoint.smAndUp ? '快捷指令' : '' }}</v-btn>
               </v-toolbar-items>
             </v-toolbar>
-            <v-sheet height="700" width="auto" dark class="console overflow-y-auto" id="sheet">
-              <code v-for="(logs, log) in logs" :key="log" class="logs rounded-0">{{ logs }}<br/></code>
+            <v-sheet height="700" width="auto" dark class="overflow-y-auto" id="sheet">
+              <div id="console" style="height: 100%"></div>
             </v-sheet>
             <v-toolbar dark>
               <v-text-field single-line prefix="/" label="在这里输入您的指令" hide-details v-model="cmd">
@@ -65,11 +65,19 @@
 </template>
 
 <script>
+import 'xterm/css/xterm.css'
+import { Terminal } from 'xterm'
+import {FitAddon} from "xterm-addon-fit";
+import date from "moment";
 export default {
   name: "Console",
   data: ()=> {
     return {
+      term: null,
       tab: 0,
+      timer: null,
+      websocket: null,
+      session: '',
       items: [
         {
           text: 'MinePanel',
@@ -85,98 +93,17 @@ export default {
         },
       ],
       cmd: '',
-      logs: [
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.ChunkMapDistance.markAreaHighPriority(ChunkMapDistance.java:235)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.ChunkProviderServer.markAreaHighPriority(ChunkProviderServer.java:455)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.PlayerList.a(PlayerList.java:177)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.LoginListener.c(LoginListener.java:174)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.LoginListener.tick(LoginListener.java:65)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.NetworkManager.a(NetworkManager.java:380)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.ServerConnection.c(ServerConnection.java:142)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.MinecraftServer.b(MinecraftServer.java:1354)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.DedicatedServer.b(DedicatedServer.java:431)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.Miner.v1_15_R1.ChunkProviderServer.tickDistanceManager(ChunkProviderServer.java:639)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.ChunkMapDistance.markAreaHighPriority(ChunkMapDistance.java:235)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.ChunkProviderServer.markAreaHighPriority(ChunkProviderServer.java:455)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.PlayerList.a(PlayerList.java:177)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.LoginListener.c(LoginListener.java:174)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.LoginListener.tick(LoginListener.java:65)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.NetworkManager.a(NetworkManager.java:380)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.ServerConnection.c(ServerConnection.java:142)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.MinecraftServer.b(MinecraftServer.java:1354)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.DedicatedServer.b(DedicatedServer.java:431)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.Miner.v1_15_R1.ChunkProviderServer.tickDistanceManager(ChunkProviderServer.java:639)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.ChunkMapDistance.markAreaHighPriority(ChunkMapDistance.java:235)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.ChunkProviderServer.markAreaHighPriority(ChunkProviderServer.java:455)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.PlayerList.a(PlayerList.java:177)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.LoginListener.c(LoginListener.java:174)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.LoginListener.tick(LoginListener.java:65)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.NetworkManager.a(NetworkManager.java:380)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.ServerConnection.c(ServerConnection.java:142)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.MinecraftServer.b(MinecraftServer.java:1354)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.DedicatedServer.b(DedicatedServer.java:431)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.Miner.v1_15_R1.ChunkProviderServer.tickDistanceManager(ChunkProviderServer.java:639)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.ChunkMapDistance.markAreaHighPriority(ChunkMapDistance.java:235)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.ChunkProviderServer.markAreaHighPriority(ChunkProviderServer.java:455)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.PlayerList.a(PlayerList.java:177)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.LoginListener.c(LoginListener.java:174)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.LoginListener.tick(LoginListener.java:65)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.NetworkManager.a(NetworkManager.java:380)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.ServerConnection.c(ServerConnection.java:142)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.MinecraftServer.b(MinecraftServer.java:1354)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.DedicatedServer.b(DedicatedServer.java:431)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.MinecraftServer.a(MinecraftServer.java:1182)',
-        '[15:14:30 ERROR]:  net.minecraft.server.v1_15_R1.MinecraftServer.run(MinecraftServer.java:971)',
-        '[15:14:30 ERROR]:  java.lang.Thread.run(Unknown Source)',
-        '[15:14:30 ERROR]: ------------------------------',
-        '[15:14:30 ERROR]: --- DO NOT REPORT THIS TO PAPER - THIS IS NOT A BUG OR A CRASH ---',
-        '[15:14:30 ERROR]: ------------------------------',
-        '[15:14:38 ERROR]: --- DO NOT REPORT THIS TO PAPER - THIS IS NOT A BUG OR A CRASH  - git-Paper-391 (MC: 1.15.2) ---',
-        '[15:14:38 ERROR]: The server has not responded for 22 seconds! Creating thread dump',
-        '[15:14:38 ERROR]: ------------------------------',
-        '[15:14:38 ERROR]: Server thread dump (Look for plugins here before reporting to Paper!):',
-        '[15:14:38 ERROR]: ------------------------------',
-        '[15:14:38 ERROR]: Current Thread: Server thread',
-        '[15:14:38 ERROR]:  PID: 17 | Suspended: false | Native: false | State: RUNNABLE',
-        '[15:14:38 ERROR]:  Stack:',
-        '[15:14:38 ERROR]:  java.util.concurrent.ConcurrentHashMap$Traverser.advance(Unknown Source)',
-        '[15:14:38 ERROR]:  java.util.concurrent.ConcurrentHashMap.forEach(Unknown Source)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.PlayerChunk.a(PlayerChunk.java:736)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.ChunkMapDistance.a(ChunkMapDistance.java:117)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.ChunkProviderServer.tickDistanceManager(ChunkProviderServer.java:639)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.ChunkMapDistance.markAreaHighPriority(ChunkMapDistance.java:235)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.ChunkProviderServer.markAreaHighPriority(ChunkProviderServer.java:455)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.PlayerList.a(PlayerList.java:177)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.LoginListener.c(LoginListener.java:174)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.LoginListener.tick(LoginListener.java:65)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.NetworkManager.a(NetworkManager.java:380)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.ServerConnection.c(ServerConnection.java:142)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.MinecraftServer.b(MinecraftServer.java:1354)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.DedicatedServer.b(DedicatedServer.java:431)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.MinecraftServer.a(MinecraftServer.java:1182)',
-        '[15:14:38 ERROR]:  net.minecraft.server.v1_15_R1.MinecraftServer.run(MinecraftServer.java:971)',
-        '[15:14:38 ERROR]:  java.lang.Thread.run(Unknown Source)',
-        '[15:14:38 ERROR]: ------------------------------',
-        '[15:14:38 ERROR]: --- DO NOT REPORT THIS TO PAPER - THIS IS NOT A BUG OR A CRASH ---',
-        '[15:14:38 ERROR]: ------------------------------',
-        '[15:14:44 ERROR]: --- DO NOT REPORT THIS TO PAPER - THIS IS NOT A BUG OR A CRASH  - git-Paper-391 (MC: 1.15.2) ---',
-        '[15:14:44 ERROR]: The server has not responded for 28 seconds! Creating thread dump',
-        '[15:14:44 ERROR]: ------------------------------',
-        '[15:14:44 ERROR]: Server thread dump (Look for plugins here before reporting to Paper!):',
-        '[15:14:44 ERROR]: ------------------------------',
-        '[15:14:44 ERROR]: Current Thread: Server thread',
-        '[15:14:44 ERROR]:  PID: 17 | Suspended: false | Native: false | State: RUNNABLE',
-      ],
+      logs: [],
     }
   },
 
   methods: {
     clean() {
       this.logs = []
+      this.term.clear()
     },
     send() {
       if (this.cmd) {
-        const date = require('moment')
         let time = new Date();
         this.logs.push('[' + date(time).format('HH:mm:ss') + ' ' + '控制台' + ']: ' + this.cmd)
         this.cmd = ''
@@ -188,23 +115,77 @@ export default {
         let sheet = document.getElementById('sheet')
         sheet.scrollTop = sheet.scrollHeight
       })
+    },
+    updateLog() {
+      this.term.clear()
+      let j=0
+      let len = 0
+      for (j = 0,len=this.logs.length; j < len; j++) {
+        this.term.writeln(this.logs[j])
+        this.scrollToBottom()
+      }
+    },
+    initConsole() {
+      this.$nextTick(() => {
+        const term = new Terminal({
+          fontSize: 14,
+          disableStdin: true,
+          theme: {
+            background: '#2f2f2f',
+          }
+        });
+        const fitAddon = new FitAddon();
+        term.loadAddon(fitAddon);
+        term.open(document.getElementById('console'));
+        fitAddon.fit();
+        term.focus();
+        this.term = term
+      })
+    },
+    connectDaemon() {
+      this.$http.get("http://localhost:8081/server/log?id=1&token=test").then(function (result) {
+        this.term.writeln('[' + date(this.getTime()).format('HH:mm:ss') + ' ' + '面板' + ']: ' + 'Daemon Connected')
+        if (result.data.code === '200') {
+          this.logs = result.data.msg
+        } else {
+          this.term.writeln('[' + date(this.getTime()).format('HH:mm:ss') + ' ' + 'Daemon' + ']: ' + result.data.msg)
+        }
+        this.$http.get("http://localhost:8081/session/create?id=1&token=test").then(function (result) {
+          this.session = result.data.msg
+          this.initWebSocket()
+        })
+      }, function () {
+        this.term.writeln('[' + date(this.getTime()).format('HH:mm:ss') + ' ' + '面板' + ']: ' + 'Daemon connect failed. Please reopen the console to retry')
+      })
+    },
+    getTime() {
+      return new Date()
+    },
+    initWebSocket() {
+      this.websocket = new WebSocket("ws://localhost:8081/websocket/" + this.session)
+      this.websocket.onopen = this.onopen
+      this.websocket.onerror = this.websocketonerror
+      this.websocket.onmessage = this.websocketonmessage
+      this.websocket.onclose = this.websocketclose
+    },
+    onopen() {
+
     }
   },
   created() {
-    this.scrollToBottom()
-  }
+    this.initConsole()
+    this.connectDaemon()
+  },
+  beforeDestroy() {
+    //
+  },
+  watch: {
+    logs() {
+      this.updateLog();
+    }
+  },
 }
 </script>
 
 <style scoped>
-.console {
-  user-select: text;
-  -webkit-user-select: text;
-  display: flex;
-  flex-direction: column
-}
-.logs {
-  word-wrap:break-word;
-  word-break:break-all;
-}
 </style>
