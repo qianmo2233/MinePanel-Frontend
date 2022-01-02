@@ -25,12 +25,16 @@
             <v-toolbar dense dark>
               <v-toolbar-items>
                 <v-btn text @click="clean"><v-icon :left="$vuetify.breakpoint.smAndUp">mdi-delete</v-icon>{{ $vuetify.breakpoint.smAndUp ? '清空日志' : '' }}</v-btn>
-              </v-toolbar-items>
-              <v-toolbar-items>
                 <v-btn text @click="scrollToBottom"><v-icon :left="$vuetify.breakpoint.smAndUp">mdi-format-vertical-align-bottom</v-icon>{{ $vuetify.breakpoint.smAndUp ? '移至底部' : '' }}</v-btn>
-              </v-toolbar-items>
-              <v-toolbar-items>
                 <v-btn text><v-icon :left="$vuetify.breakpoint.smAndUp">mdi-code-tags</v-icon>{{ $vuetify.breakpoint.smAndUp ? '快捷指令' : '' }}</v-btn>
+              </v-toolbar-items>
+              <v-spacer/>
+              <v-toolbar-items>
+                <v-btn text @click="start"><v-icon left>mdi-play</v-icon>启动</v-btn>
+                <v-btn text @click="stop"><v-icon left>mdi-pause</v-icon>停止</v-btn>
+                <v-btn text><v-icon left>mdi-reload</v-icon>重启</v-btn>
+                <v-btn text @click="reload"><v-icon left>mdi-sync</v-icon>重载</v-btn>
+                <v-btn text><v-icon left>mdi-stop</v-icon>强制停止</v-btn>
               </v-toolbar-items>
             </v-toolbar>
             <v-sheet height="700" width="auto" dark class="overflow-y-auto" id="sheet">
@@ -78,6 +82,7 @@ export default {
       timer: null,
       websocket: null,
       session: '',
+      last: '',
       items: [
         {
           text: 'MinePanel',
@@ -104,11 +109,23 @@ export default {
     },
     send() {
       if (this.cmd) {
-        let time = new Date();
-        this.logs.push('[' + date(time).format('HH:mm:ss') + ' ' + '控制台' + ']: ' + this.cmd)
+        this.term.writeln('> ' + this.cmd)
+        this.$http.get("http://localhost:8081/server/exec?id=1&token=test&cmd=" + this.cmd).then(function () {
+          this.scrollToBottom()
+        }, function () {
+          this.scrollToBottom()
+        })
         this.cmd = ''
-        this.scrollToBottom()
       }
+    },
+    start() {
+      this.$http.get('http://localhost:8081/server/start?id=1&token=test&cmd=java -jar %7Bfile%7D').then()
+    },
+    stop() {
+      this.$http.get('http://localhost:8081/server/exec?id=1&token=test&cmd=stop').then()
+    },
+    reload() {
+      this.$http.get('http://localhost:8081/server/exec?id=1&token=test&cmd=reload').then()
     },
     scrollToBottom() {
       this.$nextTick(() => {
@@ -164,12 +181,29 @@ export default {
     initWebSocket() {
       this.websocket = new WebSocket("ws://localhost:8081/websocket/" + this.session)
       this.websocket.onopen = this.onopen
-      this.websocket.onerror = this.websocketonerror
-      this.websocket.onmessage = this.websocketonmessage
-      this.websocket.onclose = this.websocketclose
+      this.websocket.onerror = this.onerror
+      this.websocket.onmessage = this.onmessage
+      this.websocket.onclose = this.onclose
     },
     onopen() {
-
+      //
+    },
+    onerror() {
+      //
+    },
+    onmessage(msg) {
+      let data = JSON.parse(msg.data)
+      if (data.type === 'log' && data.msg !== this.last) {
+        this.last = data.msg
+        this.term.writeln(data.msg)
+        this.scrollToBottom()
+      }
+      if (data.type === 'status') {
+        this.term.writeln('[' + date(this.getTime()).format('HH:mm:ss') + ' ' + '面板' + ']: ' + 'Server is ' + data.msg)
+      }
+    },
+    onclose() {
+      //
     }
   },
   created() {
@@ -177,7 +211,7 @@ export default {
     this.connectDaemon()
   },
   beforeDestroy() {
-    //
+    this.websocket.close()
   },
   watch: {
     logs() {

@@ -170,9 +170,9 @@
                         <span>CPU占用</span>
                       </div>
                     </v-progress-circular>
-                    <v-progress-circular :rotate="-90" :size="150" :width="10" value="90.53" color="indigo" :class="$vuetify.breakpoint.mdAndDown ? 'mt-2' : 'ml-6'">
+                    <v-progress-circular :rotate="-90" :size="150" :width="10" :value="memory/512 * 100" color="indigo" :class="$vuetify.breakpoint.mdAndDown ? 'mt-2' : 'ml-6'">
                       <div>
-                        <h2 class="mb-1">3711 MB</h2>
+                        <h2 class="mb-1">{{ memory }} MB</h2>
                         <span>内存占用</span>
                       </div>
                     </v-progress-circular>
@@ -184,10 +184,16 @@
         </v-row>
       </v-col>
     </v-row>
+    <v-overlay opacity="0.9" :value="overlay">
+      <v-progress-circular indeterminate size="64" class="mb-5"></v-progress-circular>
+      <br>
+      <span class="mt-5">正在载入</span>
+    </v-overlay>
   </v-container>
 </template>
 
 <script>
+
 export default {
   name: "Dashboard",
   data: ()=> {
@@ -206,6 +212,52 @@ export default {
           to: '/manager/dashboard',
         },
       ],
+
+      websocket: null,
+      overlay: false,
+      memory: 0,
+    }
+  },
+  created() {
+    this.overlay = true
+    this.initWebSocket()
+  },
+  beforeDestroy() {
+    this.websocket.close()
+  },
+  methods: {
+    initWebSocket() {
+      this.$http.get("http://localhost:8081/session/create?id=1&token=test").then(function (result) {
+        let session = result.data.msg
+        this.websocket = new WebSocket("ws://localhost:8081/websocket/" + session)
+        this.websocket.onopen = this.onopen
+        this.websocket.onerror = this.onerror
+        this.websocket.onmessage = this.onmessage
+        this.websocket.onclose = this.onclose
+        this.overlay = false
+      }, function () {
+        this.overlay = false
+      })
+    },
+    onopen() {
+      //
+    },
+    onerror() {
+      //
+    },
+    onmessage(msg) {
+      let data = JSON.parse(msg.data)
+      if (data.type === 'memory') {
+        this.memory = parseInt(parseInt(data.msg)/1024)
+      }
+      if (data.type === 'status') {
+        if (data.msg === 'running') {
+          //
+        }
+        if (data.msg === 'stopped') {
+          //
+        }
+      }
     }
   },
   computed: {
